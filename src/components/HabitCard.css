@@ -1,0 +1,145 @@
+.habit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  animation: slide-in 0.25s ease both;
+}
+
+.habit-card.done {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green), 0 0 16px var(--green-glow);
+}
+
+.habit-card.done::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--green-glow) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.check-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.check-btn:hover { border-color: var(--green); }
+
+.check-btn.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.check-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: white;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 0.25s ease;
+}
+
+.check-btn.checked svg { stroke-dashoffset: 0; }
+
+.habit-emoji { font-size: 1.4rem; line-height: 1; }
+
+.habit-info { flex: 1; }
+
+.habit-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.habit-card.done .habit-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.habit-streak {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.streak-fire { color: #f97316; }
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.habit-card:hover .delete-btn { opacity: 1; }
+.delete-btn:hover { color: #f87171; }
+
+/* ── Confetti burst ── */
+.burst {
+  position: absolute;
+  pointer-events: none;
+  top: 50%;
+  left: 36px;
+  transform: translateY(-50%);
+}
+
+.burst span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: burst-out 0.5s ease-out forwards;
+}
+
+@keyframes burst-out {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+/* ── Ripple on check ── */
+@keyframes ripple {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.check-btn.pop::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: ripple 0.4s ease-out forwards;
+}
+
+/* ── Card entrance ── */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
