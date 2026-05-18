@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Habit Tracker — Next.js (Full Server Mode)
 
-## Getting Started
+A daily habit tracker built with Next.js in full server mode. Data lives in server memory instead of `localStorage`, mutations happen through Server Actions, and pages are pure Server Components. A learning project exploring what Next.js can do when not constrained to static export.
 
-First, run the development server:
+## Features
+
+- Add and delete habits with a name and emoji
+- Mark habits as done each day
+- Streak counter per habit
+- Weekly completion view
+- Stats page — total habits, completion rate, all-time completions per habit
+- Shared navigation bar with active route highlighting
+- Data stored in server memory (persists across page refreshes, resets on server restart)
+- PostHog analytics
+
+## Tech Stack
+
+- Next.js 15 (full server mode)
+- TypeScript
+- PostHog (analytics)
+
+## Running Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Opens at `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **Note:** This app requires a running Node.js server and cannot be hosted on GitHub Pages. Deployment to Vercel is planned as a future step.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+```
+src/
+├── app/
+│   ├── layout.tsx        — root layout, shared nav bar
+│   ├── page.tsx          — home page (Server Component)
+│   └── stats/
+│       └── page.tsx      — stats page (Server Component)
+├── components/
+│   ├── Nav.tsx           — navigation bar (Client Component)
+│   ├── AddForm.tsx       — add habit form (Client Component)
+│   ├── HabitCard.tsx     — individual habit card (Client Component)
+│   └── WeeklyView.tsx    — weekly completion grid
+└── lib/
+    ├── store.ts          — server-side in-memory data store
+    ├── actions.ts        — Server Actions (mutations)
+    └── utils.ts          — shared pure helper functions
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Part of a Learning Journey
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This is Phase 5 of a learning series building the same habit tracker across progressively more advanced stacks:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Phase | Stack | Repo |
+|---|---|---|
+| 1 | Vanilla JS | [abhinav1897.github.io](https://github.com/abhinav1897/abhinav1897.github.io) |
+| 2 | React JS | habit-tracker-react |
+| 3 | React + TypeScript | habit-tracker-react-ts |
+| 4 | Next.js (static) | habit-tracker-nextjs |
+| 5 | **Next.js (server)** | **this repo** |
