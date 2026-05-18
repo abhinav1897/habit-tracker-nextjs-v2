@@ -1,14 +1,16 @@
 'use client'
 import { useState, useEffect } from 'react'
 import './AddForm.css'
+import { usePostHog } from '@posthog/react'
 
 const EMOJIS = ['🌱','💪','🪴','🏃','🧘','🧗','🥗','😴','🎯','✏️','🎸','📖','🚴','🧠','📱','☕','🏋','🧹','🎨','🌿','🏔️','🎵','🐶','🧑‍💻','🌊','💻','🧪','🎭','🎯','🌿']
 
 interface AddFormProps {
-  onAdd: (name: string, emoji: string) => void
+  onAdd: (name: string, emoji: string) => Promise<void>
 }
 
 function AddForm({ onAdd }: AddFormProps) {
+  const posthog = usePostHog()
   const [name, setName] = useState('')
   const [selectedEmoji, setSelectedEmoji] = useState('🌱')
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -20,10 +22,11 @@ function AddForm({ onAdd }: AddFormProps) {
     return () => document.removeEventListener('click', close)
   }, [pickerOpen])
 
-  function handleAdd(): void {
+  async function handleAdd(): Promise<void> {
     const trimmed = name.trim()
     if (!trimmed) return
-    onAdd(trimmed, selectedEmoji)
+    posthog?.capture('habit_added', { habit_name: trimmed, habit_emoji: selectedEmoji })
+    await onAdd(trimmed, selectedEmoji)
     setName('')
   }
 

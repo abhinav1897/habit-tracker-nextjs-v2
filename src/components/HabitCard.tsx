@@ -32,8 +32,8 @@ interface HabitCardProps {
   habit: Habit
   isDone: boolean
   streak: number
-  onToggle: (id: string) => void
-  onDelete: (id: string) => void
+  onToggle: (id: string) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
 function HabitCard({ habit, isDone, streak, onToggle, onDelete }: HabitCardProps) {
@@ -41,8 +41,7 @@ function HabitCard({ habit, isDone, streak, onToggle, onDelete }: HabitCardProps
   const [isBursting, setIsBursting] = useState(false)
   const [isPopping, setIsPopping] = useState(false)
 
-  function handleToggle(): void {
-    onToggle(habit.id)
+  async function handleToggle(): Promise<void> {
     if (!isDone) {
       posthog?.capture('habit_completed', { habit_name: habit.name, habit_emoji: habit.emoji, streak: streak + 1 })
       setIsBursting(true)
@@ -52,6 +51,7 @@ function HabitCard({ habit, isDone, streak, onToggle, onDelete }: HabitCardProps
     } else {
       posthog?.capture('habit_uncompleted', { habit_name: habit.name, habit_emoji: habit.emoji, streak })
     }
+    await onToggle(habit.id)
   }
 
   return (
