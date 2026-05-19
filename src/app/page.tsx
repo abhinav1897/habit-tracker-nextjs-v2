@@ -5,9 +5,9 @@ import { getHabits, getCompletions } from '@/lib/store'
 import { addHabit, toggleHabit, deleteHabit } from '@/lib/actions'
 import { todayKey, getWeekDays, calcStreak } from '@/lib/utils'
 
-export default function Home() {
-  const habits = getHabits()
-  const completions = getCompletions()
+export default async function Home() {
+  const habits = await getHabits()
+  const completions = await getCompletions()
   const today = todayKey()
   const todayList = completions[today] ?? []
   const weekDays = getWeekDays()

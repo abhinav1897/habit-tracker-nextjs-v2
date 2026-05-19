@@ -11,16 +11,16 @@ export async function addHabit(name: string, emoji: string): Promise<void> {
     emoji,
     createdAt: todayKey(),
   }
-  addHabitToStore(habit)
+  await addHabitToStore(habit)
   revalidatePath('/')
 }
 
 export async function toggleHabit(habitId: string): Promise<void> {
-  toggleHabitInStore(habitId, todayKey())
+  await toggleHabitInStore(habitId, todayKey())
   revalidatePath('/')
 }
 
 export async function deleteHabit(habitId: string): Promise<void> {
-  deleteHabitFromStore(habitId)
+  await deleteHabitFromStore(habitId)
   revalidatePath('/')
 }

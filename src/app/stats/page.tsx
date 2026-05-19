@@ -1,9 +1,9 @@
 import { getHabits, getCompletions } from '@/lib/store'
 import { todayKey, calcStreak } from '@/lib/utils'
 
-export default function StatsPage() {
-  const habits = getHabits()
-  const completions = getCompletions()
+export default async function StatsPage() {
+  const habits = await getHabits()
+  const completions = await getCompletions()
   const today = todayKey()
   const todayList = completions[today] ?? []
   const doneToday = habits.filter(h => todayList.includes(h.id)).length
