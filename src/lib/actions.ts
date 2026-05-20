@@ -16,7 +16,7 @@ export async function addHabit(name: string, emoji: string): Promise<void> {
     emoji,
     createdAt: todayKey(),
   }
-  await addHabitToStore(habit, user.id)
+  await addHabitToStore(habit, user.id, supabase)
   revalidatePath('/')
 }
 
@@ -25,7 +25,7 @@ export async function toggleHabit(habitId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  await toggleHabitInStore(habitId, todayKey(), user.id)
+  await toggleHabitInStore(habitId, todayKey(), supabase)
   revalidatePath('/')
 }
 
@@ -34,6 +34,6 @@ export async function deleteHabit(habitId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  await deleteHabitFromStore(habitId, user.id)
+  await deleteHabitFromStore(habitId, supabase)
   revalidatePath('/')
 }

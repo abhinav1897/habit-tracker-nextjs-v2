@@ -12,8 +12,8 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
-  const habits = await getHabits(user.id)
-  const completions = await getCompletions(user.id)
+  const habits = await getHabits(supabase)
+  const completions = await getCompletions(supabase)
   const today = todayKey()
   const todayList = completions[today] ?? []
   const weekDays = getWeekDays()

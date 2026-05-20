@@ -1,64 +1,55 @@
-import pool from './db'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Habit, Completions } from '@/types'
 
-export async function getHabits(userId: string): Promise<Habit[]> {
-  const result = await pool.query(
-    'SELECT id, name, emoji, created_at AS "createdAt" FROM habits WHERE user_id = $1 ORDER BY id',
-    [userId]
-  )
-  return result.rows
+export async function getHabits(supabase: SupabaseClient): Promise<Habit[]> {
+  const { data } = await supabase
+    .from('habits')
+    .select('id, name, emoji, created_at')
+    .order('id')
+  return (data ?? []).map(row => ({
+    id: row.id,
+    name: row.name,
+    emoji: row.emoji,
+    createdAt: row.created_at,
+  }))
 }
 
-export async function getCompletions(userId: string): Promise<Completions> {
-  const result = await pool.query(
-    `SELECT c.habit_id, c.date
-     FROM completions c
-     JOIN habits h ON c.habit_id = h.id
-     WHERE h.user_id = $1`,
-    [userId]
-  )
+export async function getCompletions(supabase: SupabaseClient): Promise<Completions> {
+  const { data } = await supabase
+    .from('completions')
+    .select('habit_id, date')
   const completions: Completions = {}
-  for (const row of result.rows) {
+  for (const row of data ?? []) {
     if (!completions[row.date]) completions[row.date] = []
     completions[row.date].push(row.habit_id)
   }
   return completions
 }
 
-export async function addHabitToStore(habit: Habit, userId: string): Promise<void> {
-  await pool.query(
-    'INSERT INTO habits (id, name, emoji, created_at, user_id) VALUES ($1, $2, $3, $4, $5)',
-    [habit.id, habit.name, habit.emoji, habit.createdAt, userId]
-  )
+export async function addHabitToStore(habit: Habit, userId: string, supabase: SupabaseClient): Promise<void> {
+  await supabase.from('habits').insert({
+    id: habit.id,
+    name: habit.name,
+    emoji: habit.emoji,
+    created_at: habit.createdAt,
+    user_id: userId,
+  })
 }
 
-export async function toggleHabitInStore(habitId: string, date: string, userId: string): Promise<void> {
-  const owned = await pool.query(
-    'SELECT 1 FROM habits WHERE id = $1 AND user_id = $2',
-    [habitId, userId]
-  )
-  if (owned.rows.length === 0) return
-
-  const result = await pool.query(
-    'SELECT 1 FROM completions WHERE habit_id = $1 AND date = $2',
-    [habitId, date]
-  )
-  if (result.rows.length > 0) {
-    await pool.query(
-      'DELETE FROM completions WHERE habit_id = $1 AND date = $2',
-      [habitId, date]
-    )
+export async function toggleHabitInStore(habitId: string, date: string, supabase: SupabaseClient): Promise<void> {
+  const { data: existing } = await supabase
+    .from('completions')
+    .select('habit_id')
+    .eq('habit_id', habitId)
+    .eq('date', date)
+    .maybeSingle()
+  if (existing) {
+    await supabase.from('completions').delete().eq('habit_id', habitId).eq('date', date)
   } else {
-    await pool.query(
-      'INSERT INTO completions (habit_id, date) VALUES ($1, $2)',
-      [habitId, date]
-    )
+    await supabase.from('completions').insert({ habit_id: habitId, date })
   }
 }
 
-export async function deleteHabitFromStore(habitId: string, userId: string): Promise<void> {
-  await pool.query(
-    'DELETE FROM habits WHERE id = $1 AND user_id = $2',
-    [habitId, userId]
-  )
+export async function deleteHabitFromStore(habitId: string, supabase: SupabaseClient): Promise<void> {
+  await supabase.from('habits').delete().eq('id', habitId)
 }
