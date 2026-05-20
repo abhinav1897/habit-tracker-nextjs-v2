@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { signOut } from '@/app/auth/actions'
 
 export default function Nav() {
   const pathname = usePathname()
@@ -14,6 +15,12 @@ export default function Nav() {
         <span className="top-nav-icon">📊</span>
         <span>Stats</span>
       </Link>
+      <form action={signOut}>
+        <button type="submit" className="top-nav-link">
+          <span className="top-nav-icon">↩</span>
+          <span>Sign out</span>
+        </button>
+      </form>
     </nav>
   )
 }

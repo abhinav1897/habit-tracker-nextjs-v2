@@ -1,15 +1,22 @@
 import pool from './db'
 import type { Habit, Completions } from '@/types'
 
-export async function getHabits(): Promise<Habit[]> {
+export async function getHabits(userId: string): Promise<Habit[]> {
   const result = await pool.query(
-    'SELECT id, name, emoji, created_at AS "createdAt" FROM habits ORDER BY id'
+    'SELECT id, name, emoji, created_at AS "createdAt" FROM habits WHERE user_id = $1 ORDER BY id',
+    [userId]
   )
   return result.rows
 }
 
-export async function getCompletions(): Promise<Completions> {
-  const result = await pool.query('SELECT habit_id, date FROM completions')
+export async function getCompletions(userId: string): Promise<Completions> {
+  const result = await pool.query(
+    `SELECT c.habit_id, c.date
+     FROM completions c
+     JOIN habits h ON c.habit_id = h.id
+     WHERE h.user_id = $1`,
+    [userId]
+  )
   const completions: Completions = {}
   for (const row of result.rows) {
     if (!completions[row.date]) completions[row.date] = []
@@ -18,10 +25,10 @@ export async function getCompletions(): Promise<Completions> {
   return completions
 }
 
-export async function addHabitToStore(habit: Habit): Promise<void> {
+export async function addHabitToStore(habit: Habit, userId: string): Promise<void> {
   await pool.query(
-    'INSERT INTO habits (id, name, emoji, created_at) VALUES ($1, $2, $3, $4)',
-    [habit.id, habit.name, habit.emoji, habit.createdAt]
+    'INSERT INTO habits (id, name, emoji, created_at, user_id) VALUES ($1, $2, $3, $4, $5)',
+    [habit.id, habit.name, habit.emoji, habit.createdAt, userId]
   )
 }
 
@@ -43,6 +50,9 @@ export async function toggleHabitInStore(habitId: string, date: string): Promise
   }
 }
 
-export async function deleteHabitFromStore(habitId: string): Promise<void> {
-  await pool.query('DELETE FROM habits WHERE id = $1', [habitId])
+export async function deleteHabitFromStore(habitId: string, userId: string): Promise<void> {
+  await pool.query(
+    'DELETE FROM habits WHERE id = $1 AND user_id = $2',
+    [habitId, userId]
+  )
 }

@@ -1,9 +1,15 @@
 import { getHabits, getCompletions } from '@/lib/store'
 import { todayKey, calcStreak } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function StatsPage() {
-  const habits = await getHabits()
-  const completions = await getCompletions()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth')
+
+  const habits = await getHabits(user.id)
+  const completions = await getCompletions(user.id)
   const today = todayKey()
   const todayList = completions[today] ?? []
   const doneToday = habits.filter(h => todayList.includes(h.id)).length
