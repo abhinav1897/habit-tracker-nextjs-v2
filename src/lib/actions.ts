@@ -25,7 +25,7 @@ export async function toggleHabit(habitId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  await toggleHabitInStore(habitId, todayKey())
+  await toggleHabitInStore(habitId, todayKey(), user.id)
   revalidatePath('/')
 }
 

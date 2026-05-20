@@ -32,7 +32,13 @@ export async function addHabitToStore(habit: Habit, userId: string): Promise<voi
   )
 }
 
-export async function toggleHabitInStore(habitId: string, date: string): Promise<void> {
+export async function toggleHabitInStore(habitId: string, date: string, userId: string): Promise<void> {
+  const owned = await pool.query(
+    'SELECT 1 FROM habits WHERE id = $1 AND user_id = $2',
+    [habitId, userId]
+  )
+  if (owned.rows.length === 0) return
+
   const result = await pool.query(
     'SELECT 1 FROM completions WHERE habit_id = $1 AND date = $2',
     [habitId, date]
