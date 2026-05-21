@@ -9,7 +9,6 @@ export default function HabitRealtimeListener() {
     let channel: ReturnType<typeof supabase.channel>
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[Realtime] session user:', session?.user?.id)
       if (session) supabase.realtime.setAuth(session.access_token)
 
       channel = supabase
@@ -18,13 +17,10 @@ export default function HabitRealtimeListener() {
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'habits' },
           (payload) => {
-            console.log('[Realtime] INSERT received:', payload)
             toast.success(`"${payload.new.name}" added!`)
           }
         )
-        .subscribe((status) => {
-          console.log('[Realtime] channel status:', status)
-        })
+        .subscribe()
     })
 
     return () => {

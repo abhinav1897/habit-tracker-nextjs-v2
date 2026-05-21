@@ -5,6 +5,7 @@ import { signOut } from '@/app/auth/actions'
 
 export default function Nav() {
   const pathname = usePathname()
+  if (pathname === '/auth') return null
   return (
     <nav className="top-nav">
       <Link href="/" className={`top-nav-link${pathname === '/' ? ' active' : ''}`}>
