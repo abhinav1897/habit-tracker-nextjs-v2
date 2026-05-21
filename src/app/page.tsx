@@ -7,13 +7,26 @@ import { todayKey, getWeekDays, calcStreak } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+async function fetchAdvice(): Promise<string> {
+  try {
+    const res = await fetch('https://api.adviceslip.com/advice', { cache: 'no-store' })
+    const data = await res.json()
+    return data.slip.advice
+  } catch {
+    return ''
+  }
+}
+
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth')
 
-  const habits = await getHabits(supabase)
-  const completions = await getCompletions(supabase)
+  const [habits, completions, advice] = await Promise.all([
+    getHabits(supabase),
+    getCompletions(supabase),
+    fetchAdvice(),
+  ])
   const today = todayKey()
   const todayList = completions[today] ?? []
   const weekDays = getWeekDays()
@@ -75,6 +88,8 @@ export default async function Home() {
             today={today}
           />
         )}
+
+        {advice && <p className="daily-advice">&ldquo;{advice}&rdquo;</p>}
       </div>
     </div>
   )
