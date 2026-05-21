@@ -1,6 +1,7 @@
 import AddForm from '@/components/AddForm'
 import HabitCard from '@/components/HabitCard'
 import WeeklyView from '@/components/WeeklyView'
+import HabitRealtimeListener from '@/components/HabitRealtimeListener'
 import { getHabits, getCompletions } from '@/lib/store'
 import { addHabit, toggleHabit, deleteHabit } from '@/lib/actions'
 import { todayKey, getWeekDays, calcStreak } from '@/lib/utils'
@@ -44,6 +45,7 @@ export default async function Home() {
       </header>
 
       <div className="main">
+        <HabitRealtimeListener />
         <AddForm onAdd={addHabit} />
 
         {hasHabits && (
