@@ -11,22 +11,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true })
   }
 
-  const { habit_id, date } = payload.record
+  const { habit_id, date, user_id } = payload.record
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { data: habit } = await supabase
-    .from('habits')
-    .select('name, emoji')
-    .eq('id', habit_id)
-    .single()
+  const [{ data: habit }, { data: { user } }] = await Promise.all([
+    supabase.from('habits').select('name, emoji').eq('id', habit_id).single(),
+    supabase.auth.admin.getUserById(user_id),
+  ])
+
+  if (!user?.email) return NextResponse.json({ ok: true })
 
   await resend.emails.send({
     from: 'onboarding@resend.dev',
-    to: 'abhinav1897@gmail.com',
+    to: user.email,
     subject: `Habit completed: ${habit?.emoji} ${habit?.name}`,
     html: `<p>You completed <strong>${habit?.emoji} ${habit?.name}</strong> on ${date}. Keep it up!</p>`,
   })
